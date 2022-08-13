@@ -1,0 +1,20 @@
+this documentation explains ways to consume the api
+
+--REGISTRATION_PAGE :
+    -send a get request to get all field names required
+    -validation of password and email ,should be checked or the backend returns an error of invalid data
+    -u may or may not send an image file at the registration point which is done later during profile update
+
+--LOGIN:
+    -the form should send post data with names 
+        -'username'
+        -'password'
+
+--NOTE: 
+        -After login a 'refreshToken' is sent to browser which is required for every api call (get or post request),the frontend needs to 
+            send that token through the header;
+        -on sending a get request a csrf_token attached as cookie which is needed on every  post request through the header
+
+
+--PROFILE PAGE:
+        -

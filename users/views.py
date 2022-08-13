@@ -1,6 +1,5 @@
+from email.mime import image
 from encodings import utf_8
-from hashlib import new
-import imp
 from multiprocessing import context
 from secrets import choice
 from tkinter.messagebox import RETRY
@@ -19,6 +18,11 @@ from django.contrib.auth import authenticate,login
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
+from rest_framework.decorators import api_view
+from .serializers import UserSerializer,profileSerializer
+
+
+
 from .authorization import (
             accessTokenGenerator,
             isAuthenticated_user,
@@ -46,33 +50,75 @@ from .forms import (
     examsCreationForm
 )
 # Create your views here.
-#sign up
-class signupView(View):
-    def post(self,*args,**kwargs):
-        userform = userCreationForm(self.request.POST)
-        if userform.is_valid():
-            userform.save()
-            image = "http://localhost:8000/images/images/usersPics/IMG_20220412_072823_6862.jpg"
-            newProfile = userProfile(user=User.objects.get(username=self.request.POST['username']))
-            newProfile.save()
-            user = User.objects.get(username=userform.data['username'])
-            data = {
-                'user':UserSerializer(user).data
+# #sign up
+# class signupView(View):
+#     def post(self,*args,**kwargs):
+#         userform = userCreationForm(self.request.POST)
+#         if userform.is_valid():
+#             userform.save()
+#             image = "http://localhost:8000/images/images/usersPics/IMG_20220412_072823_6862.jpg"
+#             newProfile = userProfile(user=User.objects.get(username=self.request.POST['username']))
+#             newProfile.save()
+#             user = User.objects.get(username=userform.data['username'])
+#             data = {
+#                 'user':UserSerializer(user).data
+#                 }
+#             accessToken = accessTokenGenerator(user.id)
+#             refreshToken = refreshTokenGenerator(user.id)
+#             data['accessToken'] = accessToken
+#             r = JsonResponse(data=data)
+#             r.set_cookie(key="refreshToken",value=refreshToken)
+#             return r
+#         else:
+#             res =  Response(userform.errors)
+#             return  JsonResponse(res.data,safe=False)
+
+@api_view(["POST","GET"])
+def signUpView(request):
+    if request.method=="POST":
+        data = request.data
+        if data["password1"]==data["password2"]:
+            user_detail = {
+                "username":data['username'],
+                "email":data["email"],
+                "password":data["password2"],
+            }
+            u_serializer = UserSerializer(data=user_detail)
+            if u_serializer.is_valid():
+                u_serializer.save()
+                user = User.objects.get(username=user_detail['username'])
+                image = "http://localhost:8000/images/images/usersPics/IMG_20220412_072823_6862.jpg"
+                try:
+                    image = data["image"]
+                except:
+                    pass
+                p_details = {
+                    "user":user.pk,
+                    "userImage":user_image
                 }
-            accessToken = accessTokenGenerator(user.id)
-            refreshToken = refreshTokenGenerator(user.id)
-            data['accessToken'] = accessToken
-            r = JsonResponse(data=data)
-            r.set_cookie(key="refreshToken",value=refreshToken)
-            return r
-        else:
-            res =  Response(userform.errors)
-            return  JsonResponse(res.data,safe=False)
+                p_serializer = profileSerializer(data=p_details)
+                if p_serializer.is_valid():
+                    p_serializer.save()
+                return Response({
+                    "username":user_detail['username'],
+                    "email":user_detail['email']
+                })
+            else:
+                return Response(u_serializer.errors)
+    return Response({
+        "userdetail":UserSerializer().data,
+        "profiledata":"user_image"           
+                    })
 
 ##AUTHENTICATION MIXINS CLASS
 
 ##sign in
 class loginView(View):
+    def get(self,*args, **kwargs):
+        return JsonResponse({
+            "username":"",
+            "password":""
+        })
     def post(self,*args, **kwargs):
         username = self.request.POST['username']
         password = self.request.POST['password']
@@ -95,12 +141,12 @@ class profileView(View):
         if isAuthenticated_user(self.request):
             information = {}
             profile = userProfile.objects.get(user=self.request.user) 
-            data1 =  profileSerializer(data=profile)
+            data1 =  profileSerializer(data=profile) #for non tutor users
             information['data1'] = UserSerializer(profile.user).data
             information['userImage'] = profile.userImage.url
             if profile.is_tutor:
                 tutor = Tutor.objects.get(user=self.request.user)
-                data2 =  TutorSerializer(data=tutor)
+                data2 =  TutorSerializer(data=tutor)  #users_with tutor tag
                 information['data2'] = data2.initial_data 
             
             response = JsonResponse(information,safe=False)
