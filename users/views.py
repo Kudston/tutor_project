@@ -19,7 +19,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework.decorators import api_view
-from .serializers import UserSerializer,profileSerializer
+from .serializers import UserSerializer,profileSerializer,loginFormSerializer
 
 
 
@@ -47,7 +47,8 @@ from .forms import (
     profileCreationForm,
     questionCreationForm,
     userCreationForm,
-    examsCreationForm
+    examsCreationForm,
+    user_loginForm
 )
 # Create your views here.
 # #sign up
@@ -115,10 +116,7 @@ def signUpView(request):
 ##sign in
 class loginView(View):
     def get(self,*args, **kwargs):
-        return JsonResponse({
-            "username":"",
-            "password":""
-        })
+        return JsonResponse(loginFormSerializer().data,safe=True)
     def post(self,*args, **kwargs):
         username = self.request.POST['username']
         password = self.request.POST['password']
@@ -149,7 +147,7 @@ class profileView(View):
                 data2 =  TutorSerializer(data=tutor)  #users_with tutor tag
                 information['data2'] = data2.initial_data 
             
-            response = JsonResponse(information,safe=False)
+            response = Response(information)
             return response 
         else: return JsonResponse('u arent authenticated',safe=False)
            
