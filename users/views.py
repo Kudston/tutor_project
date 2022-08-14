@@ -112,7 +112,9 @@ def signUpView(request):
                     })
 
 ##AUTHENTICATION MIXINS CLASS
-
+@api_view(["GET"])
+def home(request):
+    return Response("hello")
 ##sign in
 class loginView(View):
     def get(self,*args, **kwargs):
@@ -130,7 +132,7 @@ class loginView(View):
             respond.set_cookie(key="refreshToken",value=refreshToken)
             return respond
         else:
-            return HttpResponse("try to remember your correct details")
+            return HttpResponse("olodo!! dey try remember things,oya enter your correct details")
 
 ##profile
 class profileView(View):
