@@ -95,7 +95,7 @@ def signUpView(request):
                     pass
                 p_details = {
                     "user":user.pk,
-                    "userImage":user_image
+                    "userImage":image
                 }
                 p_serializer = profileSerializer(data=p_details)
                 if p_serializer.is_valid():
