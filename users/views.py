@@ -110,7 +110,8 @@ def signUpView(request):
         "userdetail":{
             "username":"cannot be missing",
             "password1":"cannot be missing",
-            "password2":"cannot be missing"},
+            "password2":"cannot be missing,same as password1",
+            "email":"must input"},
         "profiledata":"user_image"           
                     })
 
