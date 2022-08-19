@@ -107,7 +107,10 @@ def signUpView(request):
             else:
                 return Response(u_serializer.errors)
     return Response({
-        "userdetail":UserSerializer().data,
+        "userdetail":{
+            "username":"cannot be missing",
+            "password1":"cannot be missing",
+            "password2":"cannot be missing"},
         "profiledata":"user_image"           
                     })
 
