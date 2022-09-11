@@ -122,7 +122,7 @@ def home(request):
 ##sign in
 class loginView(View):
     def get(self,*args, **kwargs):
-        return JsonResponse(loginFormSerializer().data,safe=True)
+        return render(self.request,"login.html",{"form":user_loginForm()})
     def post(self,*args, **kwargs):
         username = self.request.POST['username']
         password = self.request.POST['password']

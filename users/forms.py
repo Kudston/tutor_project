@@ -19,7 +19,7 @@ class userCreationForm(UserCreationForm):
 
 class user_loginForm(forms.Form):
     username = forms.CharField()
-    password = forms.CharField()    
+    password = forms.CharField(widget=forms.PasswordInput)    
 
 class profileCreationForm(ModelForm):
     class Meta:
